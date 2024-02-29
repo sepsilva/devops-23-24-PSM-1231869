@@ -17,10 +17,10 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="react-and-spring-data-rest-basic" options="-parameters" />
-      <module name="react-and-spring-data-rest-conditional" options="-parameters" />
-      <module name="react-and-spring-data-rest-events" options="-parameters" />
-      <module name="react-and-spring-data-rest-hypermedia" options="-parameters" />
-      <module name="react-and-spring-data-rest-security" options="-parameters" />
+      <module name="react-and-spring-data-rest-conditional" options="" />
+      <module name="react-and-spring-data-rest-events" options="" />
+      <module name="react-and-spring-data-rest-hypermedia" options="" />
+      <module name="react-and-spring-data-rest-security" options="" />
     </option>
   </component>
 </project>
