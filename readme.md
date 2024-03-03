@@ -1,6 +1,2 @@
-1
-2
-3
-4
-5
-6
+# Class assignment reports - Luís Silva 1231869
+- [Class assignment 1](CA1/readme.md)
