@@ -37,6 +37,7 @@ class EmployeeList extends React.Component{
 		return (
 			<table>
 				<tbody>
+<<<<<<< HEAD
 				<tr>
 					<th>First Name</th>
 					<th>Last Name</th>
@@ -46,6 +47,17 @@ class EmployeeList extends React.Component{
 					<th>Email</th>
 				</tr>
 				{employees}
+=======
+					<tr>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Description</th>
+						<th>Job Title</th>
+						<th>Job Years</th>
+						<th>Email</th>
+					</tr>
+					{employees}
+>>>>>>> email-field
 				</tbody>
 			</table>
 		)

@@ -56,12 +56,21 @@ public class Employee {
 		if (o == null || getClass() != o.getClass()) return false;
 		Employee employee = (Employee) o;
 		return Objects.equals(id, employee.id) &&
+<<<<<<< HEAD
 				Objects.equals(firstName, employee.firstName) &&
 				Objects.equals(lastName, employee.lastName) &&
 				Objects.equals(description, employee.description) &&
 				Objects.equals(jobTitle, employee.jobTitle) &&
 				Objects.equals(jobYears, employee.jobTitle) &&
 				Objects.equals(email, employee.email);
+=======
+			Objects.equals(firstName, employee.firstName) &&
+			Objects.equals(lastName, employee.lastName) &&
+			Objects.equals(description, employee.description) &&
+			Objects.equals(jobTitle, employee.jobTitle) &&
+			Objects.equals(jobYears, employee.jobTitle) &&
+			Objects.equals(email, employee.email);
+>>>>>>> email-field
 	}
 
 	private boolean validConstructorArguments (String firstName, String lastName, String description, String jobTitle, int jobYears, String email) {
