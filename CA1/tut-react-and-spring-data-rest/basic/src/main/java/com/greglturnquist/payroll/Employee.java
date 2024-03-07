@@ -34,11 +34,12 @@ public class Employee {
 	private String description;
 	private String jobTitle;
 	private int jobYears;
+	private String email;
 
 	private Employee() {}
 
-	public Employee(String firstName, String lastName, String description, String jobTitle, int jobYears) {
-		if (!validConstructorArguments(firstName, lastName, description, jobTitle, jobYears)) {
+	public Employee(String firstName, String lastName, String description, String jobTitle, int jobYears, String email) {
+		if (!validConstructorArguments(firstName, lastName, description, jobTitle, jobYears, email)) {
 			throw new IllegalArgumentException("Attributes for new object are invalid");
 		}
 		this.firstName = firstName;
@@ -46,6 +47,7 @@ public class Employee {
 		this.description = description;
 		this.jobTitle = jobTitle;
 		this.jobYears = jobYears;
+		this.email = email;
 	}
 
 	@Override
@@ -54,15 +56,16 @@ public class Employee {
 		if (o == null || getClass() != o.getClass()) return false;
 		Employee employee = (Employee) o;
 		return Objects.equals(id, employee.id) &&
-			Objects.equals(firstName, employee.firstName) &&
-			Objects.equals(lastName, employee.lastName) &&
-			Objects.equals(description, employee.description) &&
-			Objects.equals(jobTitle, employee.jobTitle) &&
-			Objects.equals(jobYears, employee.jobTitle);
+				Objects.equals(firstName, employee.firstName) &&
+				Objects.equals(lastName, employee.lastName) &&
+				Objects.equals(description, employee.description) &&
+				Objects.equals(jobTitle, employee.jobTitle) &&
+				Objects.equals(jobYears, employee.jobTitle) &&
+				Objects.equals(email, employee.email);
 	}
 
-	private boolean validConstructorArguments (String firstName, String lastName, String description, String jobTitle, int jobYears) {
-		if (firstName.isBlank() || lastName.isBlank() || description.isBlank() || jobTitle.isBlank()) {
+	private boolean validConstructorArguments (String firstName, String lastName, String description, String jobTitle, int jobYears, String email) {
+		if (firstName.isBlank() || lastName.isBlank() || description.isBlank() || jobTitle.isBlank() || email.isBlank()) {
 			return false;
 		}
 		if (jobYears < 0) {
@@ -74,7 +77,7 @@ public class Employee {
 	@Override
 	public int hashCode() {
 
-		return Objects.hash(id, firstName, lastName, description, jobTitle, jobYears);
+		return Objects.hash(id, firstName, lastName, description, jobTitle, jobYears, email);
 	}
 
 	public Long getId() {
@@ -125,6 +128,14 @@ public class Employee {
 		this.jobYears = jobYears;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	@Override
 	public String toString() {
 		return "Employee{" +
@@ -134,6 +145,7 @@ public class Employee {
 				", description='" + description + '\'' +
 				", jobTitle='" + jobTitle + '\'' +
 				", jobYears='" + jobYears + '\'' +
+				", mail='" + email + '\'' +
 				'}';
 	}
 }
