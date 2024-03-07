@@ -43,6 +43,7 @@ class EmployeeList extends React.Component{
 						<th>Description</th>
 						<th>Job Title</th>
 						<th>Job Years</th>
+						<th>Email</th>
 					</tr>
 					{employees}
 				</tbody>
@@ -62,6 +63,7 @@ class Employee extends React.Component{
 				<td>{this.props.employee.description}</td>
 				<td>{this.props.employee.jobTitle}</td>
 				<td>{this.props.employee.jobYears}</td>
+				<td>{this.props.employees.email}</td>
 			</tr>
 		)
 	}
