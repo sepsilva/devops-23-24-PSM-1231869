@@ -8,6 +8,9 @@
   - [Task 2](#task-2)
   - [Task 3](#task-3)
   - [Task 4](#task-4)
+- [Part 2.1 - Adding new features with branches](#Part-2.1---Adding-new-features-with-branches)
+  - [Task 5](#task-5)
+  - [Task 6](#task-6)
 - [Conclusions and issues](#conclusions-and-issues)
 
 ## Description of assignment
@@ -194,13 +197,51 @@ curl -X POST localhost:8080/api/employees -d "{\"firstName\": \"Samwise\", \"las
   ```
 - We can refresh refresh our browser and now we see that Samwise Gamgee is now a table entry
 
+## Part 2.1 - Adding new features with branches
+A very useful feature of version control systems like Git is the ability to create branches. This allows us to create new features, fix bugs, or generally test out something new without this affecting our main working branch (tipically named main/master).  
+We already saw how tags can help us highlight important points in our project's development and how issues help to hightlight various tasks that need to be done.  
+Branches are another tool that allow us to focus on the development of these new features and keep a clear history of its development without running the risk of affecting our main branch.  
+
+[5.](#task-5)  Create a new branch and add a new field for an employee's email. When done, merge with main branch and tag the new version.  
+[6.](#task-6)  Create a new branch and add a check to make sure that the email is contains the `@` character. When done, merge with main branch and tag the new version (minor number).
+### Task 5)
+- To create a new branch we run the command `git branch [branch name]`. We can then switch to this branch using `git checkout [branch name]`.  
+We make sure we are on the correct branch by using `git branch` and we can see the one we're on by the `*` symbol.
+```git
+~/devops-23-24-PSM-1231869/CA1 (email-field)
+$ git branch
+* email-field
+  main
+```
+- Similar to [task 2](#task-2) we add the new field to the Employee class and the add to the existing objects in the DatabaseLoader class. We also add the new field to the render method in the app.js file;
+- We can verify everything is working correctly by running our application and checking `localhost:8080`, similar to [task 1](#task-1);
+- When working on a branch, instead of committing and  pushing as we do normally, `git commit -m [MESSAGE]` followed by `git push` (which pushes to our remote repository assuming everything is configured properly), we commit our content normally and then push it to our remote repository using the command `git push origin email-field`;
+- Since our new feature is working properly, we must now merge our new branch with our main branch. We start by going to our main branch using `git checkout main` but since we want to conserve our branch's history we won't simply run the `git merge email-field` command, running instead `git merge --no-ff email-field`, then we run `git push` to update our remote repository;
+- By checking our network using `git log --graph` or online with Github, we see these two branches in parallel and then their merge.
+
+### Task 6)
+- Branches should be descriptive of their purpose. We want to add a check, to see if the employee email-field contains the `@` character. We repeat the process of creating a new branch named `fix-invalid-email` similar to [task 5](#task-5) and add the new check to the Employee class and some tests;
+- We then merge our feature branch with our `main` and push it to Github;
+
 ## Conclusions and issues
-We see how version control systems like Git allow us to keep track of changes in our projects and how we can flag important versions with the use of tags and easily keep track of problems/to-do items using issues in platforms like Github along with proper commit messages.  
-We can also see how frameworks like Spring facilitate the creation of an application, allowing us to focus on our application's core and automating many of the more mundane tasks that were once needed required to be created by hand (example: methods to add items like what was done in [task 4](#task-4)).  
+Version control systems are critical when developing any kind of software as they allow the stakeholders and developers to keep track of changes, test out new features, highlight important milestones and keep a list of ongoing issues to be solved.  
+Git seems to be a widespread choice, however there are competitors out there, focusing on different niches. We checked some of the following features that Git offers:
+- Version control - Git allows us to keep track of changes in our project and easily revert to previous versions if needed;
+- Tagging - Git allows us to highlight important versions of our project;
+- Branching - Git allows us to create new branches to experiment with our code without fear of affecting our currently working code;  
+- Issues - Git allows us to keep track of problems and to-do items in our project;  
+
+We faced some issues, especially when it came to merging different branches. During [task 5](#task-5), an accidental merge was done without the `--no-ff` flag, which caused the branch's history to be lost. This was fixed by reverting to a previous commit with `git reset --hard` to commit `d014760`
+
+
+We also explored the Spring framework and how it can help us develop applicaitons.
+- Spring facilites the creation of an application, allowing us to focus on our application's core and automating many of the more mundane tasks that were once needed required to be created by hand (example: methods to add items like what was done in [task 4](#task-4)).
 
 One problem that was noticed in [task 4](#task-4) was that, despite the restrictions added in [task 3](#task-3), running a POST command with incorrect information still allows the application to display the data. More restrictions would be required to avoid the application being populated with incorrect data.  
 Example of POST with empty `firstName` and negative `jobYears` fields:
 ```bash
 curl -X POST localhost:8080/api/employees -d "{\"firstName\": \"\", \"lastName\": \"Gamgee\", \"description\": \"Friend\", \"jobTitle\": \"Friend of Frodo\" , \"jobYears\": \"-50\"}" -H "Content-Type:application/json"
 ```
+This is something that should be addressed in future class assignments, so our application is flexible and not so prone to external errors.
+
 
