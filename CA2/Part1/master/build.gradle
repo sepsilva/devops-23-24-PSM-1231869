@@ -80,3 +80,15 @@ task backup (type:Copy) {
 
     from sourceDir into backupDir
 }
+
+task archive (type:Zip) {
+    group = "DevOps"
+
+    description = "Makes an archive of all src files"
+
+    def sourceDir = file('./src')
+
+    from sourceDir
+
+
+}
