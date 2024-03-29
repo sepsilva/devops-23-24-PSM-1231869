@@ -90,5 +90,5 @@ task archive (type:Zip) {
 
     from sourceDir
 
-
+    archiveFileName = "archivedSRC.zip"
 }
