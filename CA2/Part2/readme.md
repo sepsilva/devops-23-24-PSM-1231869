@@ -1,3 +1,5 @@
+Task 1
+Issue #13
 Create branch using git branch
 Go to branch using checkout
 Generate project base using spring io
@@ -7,3 +9,31 @@ Exclude called folders
 Change import in employee.class from javax to jakarta
 We build the application using ./gradlew bootrun
 Check localhost:8080 to see it is running/empty
+
+
+Task 2
+Issue #14
+Added to build.gradle
+id 'org.siouan.frontend-jdk17' version '8.0.0'
+
+frontend {
+nodeVersion = "16.20.2"
+assembleScript = "run build"
+cleanScript = "run clean"
+checkScript = "run check"
+}
+
+
+Added to webpack.config.js
+scripts: {
+webpack: 'webpack',
+build: 'npm run webpack',
+check: 'echo Checking frontend',
+clean: 'echo Cleaning frontend',
+lint: 'echo Linting frontend',
+test: 'echo Testing frontend'
+}
+
+Add fix provided by prof to package.json file
+run gradlew build
+run gradlew bootrun
