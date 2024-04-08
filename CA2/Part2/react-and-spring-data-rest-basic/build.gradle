@@ -34,3 +34,15 @@ frontend {
 	cleanScript = "run clean"
 	checkScript = "run check"
 }
+
+task archiveCopy (type:Copy) {
+	group = "CA2/Part2"
+
+	description = "Create a copy of generated .jar file"
+
+	def jarfile = file('./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar')
+
+	def destination = file('./dist')
+
+	from jarfile into destination
+}

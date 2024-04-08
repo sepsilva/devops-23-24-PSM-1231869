@@ -37,3 +37,20 @@ test: 'echo Testing frontend'
 Add fix provided by prof to package.json file
 run gradlew build
 run gradlew bootrun
+
+branch merge done accidentally
+
+Task 3
+Issue #16
+Added copy task to build.gradle
+task archiveCopy (type:Copy) {
+group = "CA2/Part2"
+
+	description = "Create a copy of generated .jar file"
+
+	def jarfile = file('./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar')
+
+	def destination = file('./dist')
+
+	from jarfile into destination
+}
