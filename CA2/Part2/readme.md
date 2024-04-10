@@ -1,3 +1,26 @@
+# Report for Class assignment 2 - Part 2 - Luís Silva 1231869
+
+## Report Structure
+- [Using Build tools](#using-different-build-tools)
+- [Task preparation](#task-preparation)
+    - [Task 1](#task-1)
+    - [Task 2](#task-2)
+    - [Task 3](#task-3)
+    - [Task 4](#task-4)
+- [Conclusion](#conclusions) 
+
+## Description of assignment
+
+### Using different build tools
+
+## Task preparation
+
+### Task 1
+
+## Conclusion
+
+
+
 Task 1
 Issue #13
 Create branch using git branch
@@ -54,3 +77,25 @@ group = "CA2/Part2"
 
 	from jarfile into destination
 }
+
+run ./gradlew build then ./gradlew archiveCopy or run the task manually
+
+Task 4
+Issue #17
+Add delete task to build.gradle
+
+task deleteWebpackItems (type: Delete) {
+group = "CA2/Part2"
+
+	description = "Delete webpack items"
+
+	def webpackItems = file("./src/main/resources/static/built/")
+
+	delete webpackItems
+}
+
+
+Added dependsON to make sure it runs with clean
+clean.dependsOn deleteWebpackItems
+
+run ./gradlew build then ./gradlew clean to make sure the resources are deleted since clean and delete task are dependent on each other
