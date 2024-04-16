@@ -34,3 +34,27 @@ frontend {
 	cleanScript = "run clean"
 	checkScript = "run check"
 }
+
+task archiveCopy (type:Copy) {
+	group = "CA2/Part2"
+
+	description = "Create a copy of generated .jar file"
+
+	def jarfile = file('./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar')
+
+	def destination = file('${rootProject.projectDir}/dist')
+
+	from jarfile into destination
+}
+
+task deleteWebpackItems (type: Delete) {
+	group = "CA2/Part2"
+
+	description = "Delete webpack items"
+
+	def webpackItems = file("./src/main/resources/static/built/")
+
+	delete webpackItems
+}
+
+clean.dependsOn deleteWebpackItems
