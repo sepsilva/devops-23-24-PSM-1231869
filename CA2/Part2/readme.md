@@ -70,24 +70,22 @@ Below are the same examples of how commands, tasks and dependencies would work w
 - [Creating tasks](https://ant.apache.org/manual/using.html#buildfile):
   - Copy task in Ant's build.xml file:
   ```xml
-  <project name="react-and-spring-data-rest-basic" default=".">
-    <property name="jarfile" location="./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar"/>
+  ...  
+  <property name="jarfile" location="./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.jar"/>
     <property name="destination" location="./dist"/>
+  ...
     <target name="archiveCopy">
         <copy file="${jarfile}" todir="${destination}"/>
     </target>
-  </project>
   ```
 - [Dependency management in Ant](https://ant.apache.org/ivy/history/2.5.2/tutorial/dependence.html):  
   - Dependency management with Ant isn't as straightforward as with Gradle, Maven or Buildr. Ant focuses more on tasks and project bulding, however, Ivy can integrate with Ant after configuring Ant's build.xml file.
   Ivy uses its own xml file to manage dependencies and to ivy.xml we can add:
   ```xml
-  <ivy-module version="2.0">
-    <info organisation="org.springframework.boot" module="spring-boot-starter-data-jpa"/>
+  ...  
     <dependencies>
         <dependency org="org.springframework.boot" name="spring-boot-starter-data-jpa" rev="VERSION"/>
     </dependencies>
-  </ivy-module>
   ```
   
 ## Task preparation
