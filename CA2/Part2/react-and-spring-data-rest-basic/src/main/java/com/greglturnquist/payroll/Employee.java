@@ -17,6 +17,7 @@ package com.greglturnquist.payroll;
 
 import java.util.Objects;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -60,7 +61,7 @@ public class Employee {
 				Objects.equals(lastName, employee.lastName) &&
 				Objects.equals(description, employee.description) &&
 				Objects.equals(jobTitle, employee.jobTitle) &&
-				Objects.equals(jobYears, employee.jobTitle) &&
+				Objects.equals(jobYears, employee.jobYears) &&
 				Objects.equals(email, employee.email);
 	}
 
