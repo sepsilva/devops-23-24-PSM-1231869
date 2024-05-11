@@ -90,4 +90,12 @@ Tried in side project normally with basic version of application built in CA1/CA
 https://github.com/sepsilva/testDevops
 
 
- ------------------------------------------------------------------------------------------------------------------------
+MADE ENTRY IN REPO STABLE (COMMIT 61340e5) AT THIS MOMENT SPRING APPLICATION IS STABLE AND WILL LAUNCH ON WEB VM CORRECTLY
+Going to work from here.
+
+OK COMPARED TO TESTDEVOPS. GOING TO TRY DEPLOYMENT FINAL TIME TO SEE IF IT WORKS WITH CA2/PART2. VM WEB AND DB INTEGRATION. CHANGED
+build.gradle commented task;
+apps.js get path;
+application.properties to include h2 and servlet path;
+Uncomented tomcat10 insatlation and war copy to tomcat10/webapps in vagrantFile
+------------------------------------------------------------------------------------------------------------------------

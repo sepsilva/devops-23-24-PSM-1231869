@@ -58,11 +58,11 @@ Vagrant.configure("2") do |config|
       set -e
 
       #INSTALL TOMCAT10 (MANUALLY INSTALL IS DONE BECAUSE sudo apt install tomcat10 fails)
-      #wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.0.18/bin/apache-tomcat-10.0.18.tar.gz
-      #tar -xvf apache-tomcat-10.0.18.tar.gz
-      #sudo mv apache-tomcat-10.0.18 /opt/tomcat10
-      #sudo ln -s /opt/tomcat10 /usr/local/tomcat10
-      #sudo chown -R vagrant:vagrant /opt/tomcat10
+      wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.0.18/bin/apache-tomcat-10.0.18.tar.gz
+      tar -xvf apache-tomcat-10.0.18.tar.gz
+      sudo mv apache-tomcat-10.0.18 /opt/tomcat10
+      sudo ln -s /opt/tomcat10 /usr/local/tomcat10
+      sudo chown -R vagrant:vagrant /opt/tomcat10
 
       #CLONE REPO AND CHANGE GRADLE WRAPPER PERMISSIONS AND EXECUTE BUILD
       git clone https://github.com/sepsilva/devops-23-24-PSM-1231869
@@ -74,13 +74,13 @@ Vagrant.configure("2") do |config|
       #Update: since we'll be deploying the generated Web archive file to our
       #tomcat10 we no longer need to start the spring application up manually
 
-      nohup ./gradlew bootRun > /home/vagrant/spring-boot-app.log 2>&1 &
+      #nohup ./gradlew bootRun > /home/vagrant/spring-boot-app.log 2>&1 &
 
       #COPY WAR FILE GENERATED AFTER GRADLE BUILD INTO TOMCAT WEBAPPS
-      #sudo cp ./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war /opt/tomcat10/webapps
+      sudo cp ./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war /opt/tomcat10/webapps
 
       #STARTUP TOMCAT
-      #/opt/tomcat10/bin/startup.sh
+      /opt/tomcat10/bin/startup.sh
       SHELL
       #-------------------------------------------------------------
       end
