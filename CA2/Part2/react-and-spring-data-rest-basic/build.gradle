@@ -21,11 +21,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.hibernate:hibernate-core:6.4.2.Final'
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	// To support war file for deploying to tomcat
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 tasks.named('test') {
@@ -56,9 +53,9 @@ task deleteWebpackItems (type: Delete) {
 
 	description = "Delete webpack items"
 
-	def webpackItems = file("./src/main/resources/static/built/")
+	//def webpackItems = file("./src/main/resources/static/built/")
 
-	delete webpackItems
+	//delete webpackItems
 }
 
 clean.dependsOn deleteWebpackItems
