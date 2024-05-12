@@ -202,3 +202,46 @@ Ran container with success: docker run --name no-db-cachalote-container -d -p 80
 
 Able to access through browser with success
 ![img.png](img.png)
+
+4.1 Connecting 2 docker containers to have db in our spring application
+As said before we're using this pre prepared image: https://hub.docker.com/r/buildo/h2database/#
+We import this image using: docker pull buildo/h2database
+![img_3.png](img_3.png)
+We create a container named orca-db-for-spring-app using: docker run -d --name orca-db-for-spring-app -p 8082:8082 -p 9092:9092 buildo/h2database
+
+![img_4.png](img_4.png)
+We need this docker container name because if we follow the documentaion in the hub page we see that the jdbc link provided by the 
+container image has its name and we need to feed it into the application.properties before building our app so we can have a proper war file. Also the username and pass is null
+spring.datasource.url=jdbc:h2://orca-db-for-spring-app:9092/./jpadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+```properties
+server.servlet.context-path=/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT
+spring.data.rest.base-path=/api
+#To enable the H2 database so our Web VM in CA3/Part2 can communicate with the database in the DB VM in CA3/Part1
+
+#The command at the end prevents the database from closing when the last connection is closed
+spring.datasource.url=jdbc:h2://orca-db-for-spring-app:9092/./jpadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+spring.jpa.hibernate.ddl-auto=update
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+spring.h2.console.settings.web-allow-others=true
+```
+We edit the link and build the application and copy the war 
+file into our DockerAlternativeDBConnection folder and create a docker image based on it using: docker build -t baleia-azul-db-spring-app .
+
+We can then run the container using: docker run --name db-baleia-azul-container -d -p 8080:8080 baleia-azul-db-spring-app  
+
+![img_6.png](img_6.png)
+![img_5.png](img_5.png)
+!! it worked!!
+
+We again try an insert through the console et voila!!
+INSERT INTO EMPLOYEE (ID, DESCRIPTION, EMAIL, FIRST_NAME, JOB_YEARS, JOB_TITLE,LAST_NAME)
+VALUES (3, 'Never late nor early', 'Gandalf@Magic.com', 'Gadanlf', 100, 'Wizard', 'The Grey');
+
+![img_7.png](img_7.png)
