@@ -48,14 +48,14 @@ task archiveCopy (type:Copy) {
 	from jarfile into destination
 }
 
-//task deleteWebpackItems (type: Delete) {
-	//group = "CA2/Part2"
+task deleteWebpackItems (type: Delete) {
+	group = "CA2/Part2"
 
-	//description = "Delete webpack items"
+	description = "Delete webpack items"
 
-	//def webpackItems = file("./src/main/resources/static/built/")
+	def webpackItems = file("./src/main/resources/static/built/")
 
-	//delete webpackItems
-//}
+	delete webpackItems
+}
 
-//clean.dependsOn deleteWebpackItems
+clean.dependsOn deleteWebpackItems

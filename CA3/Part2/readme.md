@@ -97,5 +97,80 @@ OK COMPARED TO TESTDEVOPS. GOING TO TRY DEPLOYMENT FINAL TIME TO SEE IF IT WORKS
 build.gradle commented task;
 apps.js get path;
 application.properties to include h2 and servlet path;
-Uncomented tomcat10 insatlation and war copy to tomcat10/webapps in vagrantFile
+Uncomented tomcat10 insatlation and war copy to tomcat10/webapps in vagrantFile.
+
+Everthing is working now except the proper render but idc...
+Using the H2 Console we can:
+INSERT INTO EMPLOYEE (ID, DESCRIPTION, EMAIL, FIRST_NAME, JOB_YEARS, JOB_TITLE,LAST_NAME)
+VALUES (3, 'Never late nor early', 'Gandalf@Magic.com', 'Gadanlf', 100, 'Wizard', 'The Grey');
+
+And our table expands.
+First Name	Last Name	Description	Job Title	Job Years	Email
+Frodo	Baggins	ring bearer	Unemployed	0	Frodo_Baggage@Gmili.beard
+Bilbo	Baggins	burglar	Retired	1	Bilbo_PipeSmoker@Shire.home
+-> Gadanlf	The Grey	Never late nor early	Wizard	100	Gandalf@Magic.com
+
+
+Big issue seemed to be the connection between servlet class, appjs and the servlet in application.properties. A missing / and a 404 will be found easily
+
 ------------------------------------------------------------------------------------------------------------------------
+
+Part 4 - Alternative - Docker Container vs Virtualization
+
+Docker works with containers. The concept feels similar to VM's but these all run in our system and we overall it seems more flexible.
+
+https://hub.docker.com/r/buildo/h2database/#!
+docker pull buildo/h2database
+To pull a container running h2
+
+we can run h2 with: docker run -d --name h2-database -p 8082:8082 -p 9092:9092 buildo/h2database
+
+then if we go into localhost:8082 we see the h2 log in screen since now the database runs on our host machine (much faster)
+
+now for our spring application:
+First, to get an easy start we comment the h2 database connection on our application properties. This is so we can first test our machine running
+without needing 2 containers communicating. We can simply comment out the properties for this connection.
+
+```properties
+server.servlet.context-path=/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT
+spring.data.rest.base-path=/api
+#To enable the H2 database so our Web VM in CA3/Part2 can communicate with the database in the DB VM in CA3/Part1
+
+#The command at the end prevents the database from closing when the last connection is closed
+#spring.datasource.url=jdbc:h2:tcp://192.168.56.11:9092/./jpadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#spring.datasource.driverClassName=org.h2.Driver
+#spring.datasource.username=sa
+#spring.datasource.password=
+#spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+#spring.jpa.hibernate.ddl-auto=update
+#spring.h2.console.enabled=true
+#spring.h2.console.path=/h2-console
+#spring.h2.console.settings.web-allow-others=true
+```
+
+We create a new docker file based on our spring application. This dockerfile only provides a tomcat10 server
+
+We'll have to build our application first by going to its root and running ./gradlew build so we can have our web archive file that is deployed to tomcat
+``` dockerfile
+  #Create a basic container with java 17 and running tomcat 10 similar to what our vagrant file does
+  FROM tomcat:10-jdk17-openjdk-slim
+  
+  LABEL authors="Luis"
+  
+  #Similar to what we did in the vagrant file we must deploy the generated war file that we obtain after ./gradlew build and place it inside our tomcat webapps
+  COPY ./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war ./webapps
+  
+  #State the port that our application will run on
+  EXPOSE 8080
+  
+  #start tomcat automatically when container starts
+  CMD ["catalina.sh", "run"]
+```
+
+We can then create a new docker image based on this dockerFile by (at its root) executing it using: docker build -t luis-spring-app-in-docker .    
+
+We can then run this image as a container with a cetacean themed name using: docker run --name whale-spring-app -d -p 8080:8080 luis-spring-app-in-docker
+
+Since the container is running on our machine we can go to localhost:8080/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT and we see our table of content similar to what we did before!
+
