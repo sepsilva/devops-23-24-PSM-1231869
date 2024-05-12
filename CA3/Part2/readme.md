@@ -1,4 +1,49 @@
-Part 1 - Following tutorial  
+# Report for Class assignment 3 - Part 2 - Luís Silva 1231869
+
+## Report Structure
+- [Description of assigment](#description-of-assignment)
+- [Virtualization automation - Vagrant with Virtual Box](#virtualization-automation---vagrant-with-virtual-box)
+  - [Task preparation - Vagrant VB](#task-preparation---vagrant-vb)
+    - [Task 1](#task-1)
+    - [Task 2](#task-2)
+    - [Task 3](#task-3)
+- [Alternative - Other virtualization providers - Qemu](#alternative---other-virtualization-providers---qemu)
+- [Task preparation - Vagrant Qemu](#task-preparation---vagrant-qemu)
+- [Alternative - Containerization with Docker](#alternative---containerization-with-docker)
+  - [Task preparation - Docker](#task-preparation---docker) 
+    - [Task 4](#task-4)
+    - [Task 5](#task-5)
+- [Conclusion](#conclusions)
+
+## Description of assignment
+In this assigment we explore Virtualization automation tools like Vagrant and see how they can help us with creating standardized specific, virtual machine environments, capable of running our applications.  
+We also explore an alternative to virtualization automation which is containerization using Docker, to deploy standard predictable containers, so we can even more easily and quickly deploy our applications.
+## Virtualization automation - Vagrant with Virtual Box
+
+### Task preparation - Vagrant VB
+
+#### Task 1
+
+#### Task 2
+
+#### Task 3
+
+## Alternative - Other virtualization providers - Qemu
+
+### Task preparation - Vagrant Qemu
+
+## Alternative - Containerization with Docker
+
+### Task preparation - Docker
+
+#### Task 4
+
+#### Task 5
+
+## Conclusion
+
+
+Part 1 - Following tutorial
 
 Get Repo and install Vagrant;
 Create folder called VagrantVA and put the Vagrantfile inside;
@@ -245,3 +290,22 @@ INSERT INTO EMPLOYEE (ID, DESCRIPTION, EMAIL, FIRST_NAME, JOB_YEARS, JOB_TITLE,L
 VALUES (3, 'Never late nor early', 'Gandalf@Magic.com', 'Gadanlf', 100, 'Wizard', 'The Grey');
 
 ![img_7.png](img_7.png)
+
+-----------------------------------------------------
+Other virtualization because docker....anyway... here's qemu. 
+The we install qemu(https://www.qemu.org/download/#windows) using the given binary. We added it to our windows environment variable path.
+then we must install vagrant plugin install vagrant-libvirt so we can use qemu as the virtualization provider.
+The plug in won't install so vagrant won't recognize it as our provider and will
+We must edit our vagrant file so we specify the provider to be qemu. Qemu also requires different setup and we must also use different ubuntu version.
+Qemu is basically faster and open sourcerererer than Virtual Box. However it's super obtuse to get into.
+
+So DOCKER!
+
+
+So we can't get it to work. And I have an alternative.
+Docker in the context of this CA is an alternative to Vagrant.
+Vagrant is automation of virtualization which allows us to create a file that deploys a virtual machine using a given hypervisor (e.g. Virtual Box) with certain specification, like an ip, an app running on a server etc..
+Containers are basically the same concept!!!! It's a standard environment that can be quickly deployed and can be deployed from a file that sets up the same thing every time.
+The equivalent to a VagrantFile is a DockerImage. When we execute a vagrant file using vagrant up it's like running a container.
+
+OK I get it... Vagrant is a way to manage development environments through virtualization. To an extent it's the same thing Kubernets does with Docker containers. It's an orchestrator.

@@ -1,0 +1,99 @@
+#BASED ON VAGRANT FILE DEVELOPED IN SIDE PROJECT: https://github.com/sepsilva/testDevops
+#Setting up 2 VM Machines: 1 to run the Spring app and the other an instance of H2 database. THESE MUST USE generic/ubuntu2204
+#On a first instance the goal is to have both machines running separate and then have them communicate.
+#To change this the line to bootrun using gradlewrapper must be commented and war file deployed to tomcat server
+#Then server must be executed
+#------------------------------------------------------------------------------------
+
+#VMs will be running generic/ubuntu2204 with qemu being the provider
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+    #BOTH VMs ----------------------------------------------------
+    #Update all apps and install jdk 17
+     config.vm.provision "shell", inline: <<-SHELL
+     sudo apt-get update -y
+     sudo apt-get install -y iputils-ping avahi-daemon libnss-mdns unzip \ openjdk-17-jdk-headless
+     SHELL
+    #-------------------------------------------------------------
+
+    #DATABASE VM -------------------------------------------------
+      config.vm.define "db" do |db|
+      #SET MACHINE UBUNTU VERSION, NAME AND IP
+      db.vm.box = "ubuntu/bionic64"
+      db.vm.hostname = "db"
+
+      db.vm.provider "qemu" do |qe|
+          qe.arch = "x86_64"
+          qe.machine = "pc-q35"
+          qe.cpu = "host"
+          qe.net_device = "virtio-net-pci"
+          qe.memory = "1024"
+          qe.ssh_port = 50122
+          qe.extra_qemu_args = %w(-netdev vmnet-host,id=vmnet,start-address=192.168.56.1,end-address=192.168.56.255,subnet-mask=255.255.255.0 -device virtio-net-pci,mac=52:54:00:12:34:50,netdev=vmnet)
+    end
+
+
+      # DOWNLOAD H2 VERSION 1.4.200. VERSION 2.1.214 WAS ALSO TRIED BUT PROBLEMS WERE ENCOUNTERED. CHECK LATER?
+      db.vm.provision "shell", inline: <<-SHELL
+      wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+      SHELL
+
+      db.vm.provision "shell", :run => 'always', inline: <<-SHELL
+      java -cp ./h2*.jar org.h2.tools.Server -web -webAllowOthers -tcp -tcpAllowOthers -ifNotExists > ~/out.txt &
+      SHELL
+      end
+    #-------------------------------------------------------------
+
+    #WEB VM ------------------------------------------------------
+    config.vm.define "web" do |web|
+      #SET MACHINE UBUNTU VERSION, NAME AND IP
+      web.vm.box = "ubuntu/bionic64"
+      web.vm.hostname = "web"
+      web.vm.network "private_network", ip: "192.168.56.10"
+
+    web.vm.provider "qemu" do |qe|
+      qe.arch = "x86_64"
+      qe.machine = "pc-q35"
+      qe.cpu = "host"
+      qe.net_device = "virtio-net-pci"
+      qe.memory = "2048"
+      qe.ssh_port = 50222
+      qe.extra_qemu_args = %w(-netdev vmnet-host,id=vmnet,start-address=192.168.56.1,end-address=192.168.56.255,subnet-mask=255.255.255.0 -device virtio-net-pci,mac=52:54:00:12:34:51,netdev=vmnet)
+    end
+
+      #PORT FORWARD APPLICATIONS TO PORT 8080
+      web.vm.network "forwarded_port", guest: 8080, host: 8080
+      web.vm.provision "shell", inline: <<-SHELL, privileged: true
+
+      #USE SET -E COMMAND TO EXIT AUTOMATICALLY IF ANY SHELL COMMAND FAILS
+      set -e
+
+      #INSTALL TOMCAT10 (MANUALLY INSTALL IS DONE BECAUSE sudo apt install tomcat10 fails)
+      wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.0.18/bin/apache-tomcat-10.0.18.tar.gz
+      tar -xvf apache-tomcat-10.0.18.tar.gz
+      sudo mv apache-tomcat-10.0.18 /opt/tomcat10
+      sudo ln -s /opt/tomcat10 /usr/local/tomcat10
+      sudo chown -R vagrant:vagrant /opt/tomcat10
+
+      #CLONE REPO AND CHANGE GRADLE WRAPPER PERMISSIONS AND EXECUTE BUILD
+      git clone https://github.com/sepsilva/devops-23-24-PSM-1231869
+      cd devops-23-24-PSM-1231869/CA2/Part2/react-and-spring-data-rest-basic
+      chmod u+x gradlew
+      ./gradlew build
+
+      #INSTEAD OF USING GRADLE BOOTRUN, REDIRECT ERROR OUTPUT TO A LOG
+      #Update: since we'll be deploying the generated Web archive file to our
+      #tomcat10 we no longer need to start the spring application up manually
+
+      #nohup ./gradlew bootRun > /home/vagrant/spring-boot-app.log 2>&1 &
+
+      #COPY WAR FILE GENERATED AFTER GRADLE BUILD INTO TOMCAT WEBAPPS
+      sudo cp ./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war /opt/tomcat10/webapps
+
+      #STARTUP TOMCAT
+      /opt/tomcat10/bin/startup.sh
+      SHELL
+      #-------------------------------------------------------------
+      end
+end
