@@ -174,3 +174,31 @@ We can then run this image as a container with a cetacean themed name using: doc
 
 Since the container is running on our machine we can go to localhost:8080/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT and we see our table of content similar to what we did before!
 
+
+---------
+Moved it to CA3/Part2 to have better fine grain control and not affect other CA.
+Built application with no db connection in CA2/Part2. Moved generated war file to alternative CA3/Part2 folder.
+Created docker file:
+``` dockerfile
+  #Create a basic container with java 17 and running tomcat 10 similar to what our vagrant file does
+  FROM tomcat:10-jdk17-openjdk-slim
+  
+  LABEL authors="Luis"
+  
+  #Similar to what we did in the vagrant file we must deploy the generated war file that we obtain after ./gradlew build and place it inside our tomcat webapps
+  COPY ./react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war ./webapps
+  
+  #State the port that our application will run on
+  EXPOSE 8080
+  
+  #start tomcat automatically when container starts
+  CMD ["catalina.sh", "run"]
+```
+Created docker image with success: docker build -t cachalote-no-db-spring-app .
+![img_1.png](img_1.png)
+
+Ran container with success: docker run --name no-db-cachalote-container -d -p 8080:8080 cachalote-no-db-spring-app  
+![img_2.png](img_2.png)
+
+Able to access through browser with success
+![img.png](img.png)
