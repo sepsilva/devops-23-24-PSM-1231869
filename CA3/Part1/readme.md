@@ -13,12 +13,14 @@ In this assigment we explore virtual machines and how they can be used to differ
 We also explore how these can be used to run specific applications, like a chat server, and have other machines connect to it.
 
 ## Virtual machines and their uses
-Virtual machines are a part of the virtualization concept where a single physical machine, with help from a hypervisor, can run multiple "simulated" and independent machines.  
+Virtual machines are the key part of the virtualization concept where a single physical machine, with help from a hypervisor, can run multiple "simulated" and independent machines.  
 These machines can have their own operating system, applications and network configurations and are typically known as Guests, while the physical machine is known as the Host.  
 The hypervisors manage the resources of the physical machine and allocate them to the Guests can be of two types: Type 1 and type 2.  
 Type 1 hypervisors run directly on the hardware and are more efficient, while Type 2 hypervisors run on top of an operating system and are more user-friendly.  
 [VirtualBox](https://www.virtualbox.org/wiki/VirtualBox) is a popular Type 2 hypervisor and will be the main tool used in this assignment.
 
+For example. If we have only one physical computer that has enough resources, we could use a type 1 hypervisor that could run multiple virtual machines.
+Our company could have a very powerful server that runs multiple virtual machines, one for each department. Each department could then have their own cheap and simple computer (like a thin client) that would communicate with the server and display the virtual machine's content.
 ## Task preparation
 
 First, we need to install VirtualBox and create a virtual machine.  
@@ -28,7 +30,19 @@ Afterwards the following commands are executed on the VM:
 - `sudo apt update` - Update the package list;
 - `sudo apt install net-tools` - Install the net-tools package;
 
-Then we edit the network configuration file using `sudo nano /etc/netplan/01-netcfg.yaml` and apply the changes using `sudo netplan apply`. With these we can now connect to our VM using the IP of our previously created network adapter.  
+Then we edit the network configuration file using `sudo nano /etc/netplan/01-netcfg.yaml` and insert:
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: yes
+    enp0s8:
+      addresses:
+        - 192.168.56.5/24
+```
+We apply the changes using `sudo netplan apply`. With these we can now connect to our VM using the IP of our previously created network adapter.  
 We also install an SSH server using `sudo apt install openssh-server` and set it up and install a FTP server using `sudo apt install vsftpd`.
 
 At this moment we can start our virtual machine and using our host machine's terminal connect to it using SSH. To do this we open a terminal such as, Windows Powershell, and type `ssh luis@192.168.56.5` and we are prompted our user password that was set on our VM.
@@ -50,18 +64,8 @@ After that, the following tasks were completed:
 
 ### Task 2
 - To run both Gradle applications we must first prepare our VM:
-  - Install Gradle 8.6 using the following commands in sequence:
-    ```bash
-    wget https://services.gradle.org/distributions/gradle-8.6-bin.zip
-    sudo mkdir /opt/gradle
-    sudo unzip -d /opt/gradle gradle-8.6-bin.zip
-    echo "export GRADLE_HOME=/opt/gradle/gradle-8.6" >> ~/.bashrc
-    echo "export PATH=$PATH:$GRADLE_HOME/bin" >> ~/.bashrc
-    source ~/.bashrc
-    gradle -v
-    ```
   - Install Java 17 using `sudo apt install openjdk-17-jdk`
-  - When running both parts of the project we must also use the command `chmod` on the `gradlew` file to give it execution permissions.
+  - When running both parts of the project we must also use the command `chmod u+x` on the `gradlew` file to give it execution permissions.
 
 
 - We start by trying to run CA2/Part2 which is similar to the applications run on [Task 1](#task-1) but using Gradle. We navigate to the project folder and run the command `./gradlew bootRun` and connect to the VM using our Host machine's browser and see the same table as we saw in the second part of Task 1.
