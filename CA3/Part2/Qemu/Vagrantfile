@@ -32,17 +32,25 @@ Vagrant.configure("2") do |config|
           qe.ssh_port = 50122
           qe.extra_qemu_args = %w(-netdev vmnet-host,id=vmnet,start-address=192.168.56.1,end-address=192.168.56.255,subnet-mask=255.255.255.0 -device virtio-net-pci,mac=52:54:00:12:34:50,netdev=vmnet)
     end
+    #SPECIFY THE NETWORK CONFIGURATION FILE TO BE USED
+    db.vm.provision "file", source: "provision/netcfg-db.yaml", destination: "/home/vagrant/01-netcfg.yaml"
 
-
+    db.vm.provision "shell", :run => 'always', inline: <<-SHELL
       # DOWNLOAD H2 VERSION 1.4.200. VERSION 2.1.214 WAS ALSO TRIED BUT PROBLEMS WERE ENCOUNTERED. CHECK LATER?
-      db.vm.provision "shell", inline: <<-SHELL
       wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
       SHELL
 
       db.vm.provision "shell", :run => 'always', inline: <<-SHELL
+
+      #APPLY NETWORK CONFIGURATION
+      sudo mv /home/vagrant/01-netcfg.yaml /etc/netplan
+      chmod 600 /etc/netplan/01-netcfg.yaml
+      sudo netplan apply
+
       java -cp ./h2*.jar org.h2.tools.Server -web -webAllowOthers -tcp -tcpAllowOthers -ifNotExists > ~/out.txt &
       SHELL
       end
+
     #-------------------------------------------------------------
 
     #WEB VM ------------------------------------------------------
@@ -50,7 +58,6 @@ Vagrant.configure("2") do |config|
       #SET MACHINE UBUNTU VERSION, NAME AND IP
       web.vm.box = "ubuntu/bionic64"
       web.vm.hostname = "web"
-      web.vm.network "private_network", ip: "192.168.56.10"
 
     web.vm.provider "qemu" do |qe|
       qe.arch = "x86_64"
@@ -64,10 +71,18 @@ Vagrant.configure("2") do |config|
 
       #PORT FORWARD APPLICATIONS TO PORT 8080
       web.vm.network "forwarded_port", guest: 8080, host: 8080
+      #SPECIFY THE NETWORK CONFIGURATION FILE TO BE USED
+      web.vm.provision "file", source: "provision/netcfg-web.yaml", destination: "/home/vagrant/01-netcfg.yaml"
+
       web.vm.provision "shell", inline: <<-SHELL, privileged: true
 
       #USE SET -E COMMAND TO EXIT AUTOMATICALLY IF ANY SHELL COMMAND FAILS
       set -e
+
+      #APPLY NETWORK CONFIGURATION
+      sudo mv /home/vagrant/01-netcfg.yaml /etc/netplan
+      chmod 600 /etc/netplan/01-netcfg.yaml
+      sudo netplan apply
 
       #INSTALL TOMCAT10 (MANUALLY INSTALL IS DONE BECAUSE sudo apt install tomcat10 fails)
       wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.0.18/bin/apache-tomcat-10.0.18.tar.gz
