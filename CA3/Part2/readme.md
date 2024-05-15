@@ -7,6 +7,7 @@
     - [Task 1](#task-1)
     - [Task 2](#task-2)
     - [Task 3](#task-3)
+      - [Task 3.1](#task-3---removing-dependency-on-repository-state-and-simplifying-vagrant-file) 
 - [Alternative - Other virtualization providers - Qemu](#alternative---other-virtualization-providers---qemu)
 - [Task preparation - Vagrant Qemu](#task-preparation---vagrant-qemu)
 - [Alternative - Containerization with Docker](#alternative---containerization-with-docker)
@@ -18,6 +19,9 @@
 ## Description of assignment
 In this assigment we explore Virtualization automation tools like Vagrant and see how they can help us with creating standardized specific, virtual machine environments, capable of running our applications.  
 We also explore an alternative to virtualization automation which is containerization using Docker, to deploy standard predictable containers, so we can even more easily and quickly deploy our applications.
+
+
+
 ## Virtualization automation - Vagrant with Virtual Box
 Virtualization, as already explored in [CA3 Part1](../Part1/readme.md), is a tool that we can use to build a virtual machine that can run our applications without the need for multiple physical machines.
 This management of virtual machines is handled by a hypervisor that can manage physical's machine's resources.  
@@ -39,11 +43,11 @@ This part of the assigment is divided into 3 tasks:
 - [Task 1](#task-1): Use the [repository](https://bitbucket.org/pssmatos/vagrant-multi-spring-tut-demo/src/master/) provided to explore the Vagrant file and understand how it works.
 - [Task 2](#task-2): Create our own Vagrant file that deploys 2 virtual machines, one with a web application and another with a database. The web application should use the Spring application created in [CA2 Part2](../../CA2/Part2).
 - [Task 3](#task-3): Make is so both virtual machines can communicate with each other. The web application should be able to access the database virtual machine.  
-
+- [Task 3.1](#task-3---removing-dependency-on-repository-state-and-simplifying-vagrant-file): See how to avoid being dependant on repository state and how to simplify Vagrant file.
 
 #### Task 1
 - First we clone the [repository](https://bitbucket.org/pssmatos/vagrant-multi-spring-tut-demo/src/master/) into our host machine and explore the given Vagrant file.
-- We see that it is set up to create two different Virtual Machines, one named `web` and another named `db` with the IP's defined as 192.168.56.10 and 192.168.56.11 respectively.
+- We see that it is set up to create two different Virtual Machines, one named `web` and another named `db` with the IP's defined as `192.168.56.10` and `192.168.56.11` respectively.
 - To specify the commands we want to be run inside our virtual machines, we open the following block:
   ```ruby
   config.vm.provision "shell", inline: <<-SHELL
@@ -57,7 +61,7 @@ This part of the assigment is divided into 3 tasks:
   ```
   This specifies that we want to use the ubuntu bionic 64 image.
 - Both machines run ubuntu bionic 64 and install open jdk 11.
-  - We can configure the IP's of the machines and the ports they run on. For the db machine we:
+  - We can configure the IP's of the machines and the ports they expose to the outside. For the db machine we:
     ```ruby
     config.vm.network "private_network", ip: "192.168.56.11"
     db.vm.network "forwarded_port", guest: 8082, host: 8082
@@ -268,15 +272,15 @@ First, since our web vm's ubuntu version can't run Tomcat10 by default we must i
 - Here we can see our completed Vagrant file:
   ```ruby
   #BASED ON VAGRANT FILE DEVELOPED IN SIDE PROJECT: https://github.com/sepsilva/testDevops
-#Setting up 2 VM Machines: 1 to run the Spring app and the other an instance of H2 database
-#On a first instance the goal is to have both machines running separate and then have them communicate.
-#To change this the line to bootrun using gradlewrapper must be commented and war file deployed to tomcat server
-#Then server must be executed
-#------------------------------------------------------------------------------------
-
-#VMs will be running ubuntu/bionic64
-Vagrant.configure("2") do |config|
-config.vm.box = "ubuntu/bionic64"
+  #Setting up 2 VM Machines: 1 to run the Spring app and the other an instance of H2 database
+  #On a first instance the goal is to have both machines running separate and then have them communicate.
+  #To change this the line to bootrun using gradlewrapper must be commented and war file deployed to tomcat server
+  #Then server must be executed
+  #------------------------------------------------------------------------------------
+  
+  #VMs will be running ubuntu/bionic64
+  Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
 
     #BOTH VMs ----------------------------------------------------
     #Update all apps and install jdk 17
@@ -354,7 +358,113 @@ config.vm.box = "ubuntu/bionic64"
       #-------------------------------------------------------------
       end
     end
-    ```   
+    ```
+#### Task 3 - Removing dependency on repository state and simplifying Vagrant file
+- Due to changes done in [CA2/Part2](../../CA2/Part2) to integrate an external database into our Spring application, the Spring application in CA2/Part2 would be unable to run in standalone mode.
+- Ideally, we could have supplied a war file (generated by our Gradle build tool) as a [provision](VagrantNoClone/provision) for our Vagrant files and then leave CA2/Part2 as is. We'd however have to tell Vagrant to get that war file and deploy it to an HTTP server like Tomcat by specifying:
+  - When we want to run our application without external database integration:
+  ```ruby
+    #SPECIFY THE WAR FILE TO BE DEPLOYED TO HTTP SERVER
+    web.vm.provision "file", source: "provision/NoDBConnection/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war", destination: "/home/vagrant/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war""
+  ```
+  - When we want to run our application with database integration:
+  ```ruby
+    #SPECIFY THE WAR FILE TO BE DEPLOYED TO HTTP SERVER
+    web.vm.provision "file", source: "provision/DBConnection/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war", destination: "/home/vagrant/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war""
+  ```
+- We tell Vagrant to copy the file from the provision folder to the `home/vagrant` directory of our web vm.
+- Then, we tell Vagrant to move this file from the `home/vagrant` directory to the Tomcat webapps directory in order to avoid rewriting the webapps directory.
+- Finally, we tell Vagrant to start Tomcat as we did before.  
+
+
+- A new [vagrant file](VagrantNoClone/Vagrantfile) was created to test this approach. Currently, it copies uses the war file without database connection.  
+
+
+- This both avoids the following problems:
+  - Depending on the state of the current repository code;
+  - Requiring a public repository;
+  - Complexity in the Vagrant file, having to specify the execution of commands like: `git clone`, `cd`, `chmod`, `./gradlew build` etc...;
+
+- Below is the now simplified Vagrant file:
+```ruby
+#------------------------------------------------------------------------------------
+#VMs will be running ubuntu/bionic64
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+    #BOTH VMs ----------------------------------------------------
+    #Update all apps and install jdk 17
+     config.vm.provision "shell", inline: <<-SHELL
+     sudo apt-get update -y
+     sudo apt-get install -y iputils-ping avahi-daemon libnss-mdns unzip \ openjdk-17-jdk-headless
+     SHELL
+    #-------------------------------------------------------------
+
+    #DATABASE VM -------------------------------------------------
+      config.vm.define "db" do |db|
+      #SET MACHINE UBUNTU VERSION, NAME AND IP
+      db.vm.box = "ubuntu/bionic64"
+      db.vm.hostname = "db"
+      db.vm.network "private_network", ip: "192.168.56.11"
+      #PORT FORWARD CONNECTION. H2 CONSOLE 8082, DATA 9092
+      db.vm.network "forwarded_port", guest: 8082, host: 8082
+      db.vm.network "forwarded_port", guest: 9092, host: 9092
+
+      # DOWNLOAD H2 VERSION 1.4.200. VERSION 2.1.214 WAS ALSO TRIED BUT PROBLEMS WERE ENCOUNTERED. CHECK LATER?
+      db.vm.provision "shell", inline: <<-SHELL
+      wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+      SHELL
+
+      db.vm.provision "shell", :run => 'always', inline: <<-SHELL
+      java -cp ./h2*.jar org.h2.tools.Server -web -webAllowOthers -tcp -tcpAllowOthers -ifNotExists > ~/out.txt &
+      SHELL
+      end
+    #-------------------------------------------------------------
+
+    #WEB VM ------------------------------------------------------
+    config.vm.define "web" do |web|
+      #SET MACHINE UBUNTU VERSION, NAME AND IP
+      web.vm.box = "ubuntu/bionic64"
+      web.vm.hostname = "web"
+      web.vm.network "private_network", ip: "192.168.56.10"
+
+      #SET RAM AMOUNT FOR VM TO 1GB
+      web.vm.provider "virtualbox" do |v|
+          v.memory = 1024
+      end
+      #PORT FORWARD APPLICATIONS TO PORT 8080
+      web.vm.network "forwarded_port", guest: 8080, host: 8080
+
+      web.vm.provision "shell", inline: <<-SHELL, privileged: true
+
+      #USE SET -E COMMAND TO EXIT AUTOMATICALLY IF ANY SHELL COMMAND FAILS
+      set -e
+
+      #INSTALL TOMCAT10 (MANUALLY INSTALL IS DONE BECAUSE sudo apt install tomcat10 fails)
+      wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.0.18/bin/apache-tomcat-10.0.18.tar.gz
+      tar -xvf apache-tomcat-10.0.18.tar.gz
+      sudo mv apache-tomcat-10.0.18 /opt/tomcat10
+      sudo ln -s /opt/tomcat10 /usr/local/tomcat10
+      sudo chown -R vagrant:vagrant /opt/tomcat10
+      SHELL
+
+      #SPECIFY THE WAR FILE TO BE DEPLOYED TO HTTP SERVER
+      web.vm.provision "file", source: "provision/NoDBConnection/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war", destination: "/home/vagrant/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war"
+
+      #NEW SHELL TO STARTUP TOMCAT
+      web.vm.provision "shell", inline: <<-SHELL, privileged: true
+
+      #MOVE FILE FROM WHERE IT WAS ADDED INTO TO TOMCAT WEBAPPS. THIS AVOIDS REWRITING
+      sudo mv /home/vagrant/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war /opt/tomcat10/webapps/
+      #STARTUP TOMCAT
+      /opt/tomcat10/bin/startup.sh
+
+      SHELL
+      #-------------------------------------------------------------
+      end
+end
+```
+
 ## Alternative - Other virtualization providers - Qemu
 As said before, Vagrant uses Virtual Box as its default provider, however Virtual Box has some drawbacks such as:
 - Not being as fast as other providers;
@@ -643,5 +753,10 @@ An error was returned:
   
   Vagrant knows about the following providers: docker, hyperv, virtualbox
 ```
+Some attempts were made, like installing libvirt plugin for Vagrant, however the error persisted.  
+
+Hyper-v and VMWare were explored as alternatives but:
+- Hyper-v is not supported by Windows 11 Home edition (our version);
+- VMWare is not free and we didn't have a license.
 
 
