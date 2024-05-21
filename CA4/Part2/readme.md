@@ -9,4 +9,12 @@ To run the container we: docker run -d -p 8082:8082 -p 9092:9092 h2-server
 We can check that it runs by going to http://localhost:8082 and seeing the console
 
 Part 2 - Creating application container
-Create a new [Dockerfile](Dockerfile) that copies the jar file from the target folder and runs it.
+Create a new [Dockerfile](DockerfileApp) that copies the jar file from the target folder and runs it.
+Use as base what was done in CA3/Part2
+
+We build with
+docker build -t app -f DockerfileApp .
+docker run -d -p 8080:8080 app
+
+Obviously we get a connection error, because the application is trying to connect to a database that doesn't exist in or in its network.
+

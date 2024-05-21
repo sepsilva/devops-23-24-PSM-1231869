@@ -1,0 +1,32 @@
+#Create a basic container with java 17 and running tomcat 10 similar to what our vagrant file does
+FROM tomcat:10-jdk17-openjdk-slim
+
+LABEL authors="Luis"
+
+# Create a directory for the project and clone the repository there
+RUN mkdir -p /cloneHome
+WORKDIR /cloneHome
+
+# Update package list and install Git
+RUN apt-get update && apt-get install -y git
+
+#Clone our repo's CA2/Part2 project
+RUN git clone https://github.com/sepsilva/devops-23-24-PSM-1231869
+
+#Change to the project directory
+WORKDIR /cloneHome/devops-23-24-PSM-1231869/CA2/Part2/react-and-spring-data-rest-basic
+
+#Change the permissions of the gradlew file to make it executable
+RUN chmod +x gradlew
+
+#Run the gradle build command
+RUN ./gradlew build
+
+# Copy the generated war file to the Tomcat webapps directory
+RUN cp ./build/libs/react-and-spring-data-rest-basic-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/
+
+#State the port that our application will run on
+EXPOSE 8080
+
+#start tomcat automatically when container starts
+CMD ["catalina.sh", "run"]
