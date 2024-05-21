@@ -1,0 +1,13 @@
+# Create a new Dockerfile
+FROM openjdk:17-jdk-slim
+
+LABEL authors="Luis"
+
+# Copy the JAR file from the previous container
+COPY --from=dockerdoublecontainer-builder /outputBinary/basic_demo-0.1.0.jar /app/basic_demo-0.1.0.jar
+
+# Set the working directory
+WORKDIR /app
+
+# Command to run the JAR file
+CMD ["java", "-cp", "/app/basic_demo-0.1.0.jar", "basic_demo.ChatServerApp", "59001"]

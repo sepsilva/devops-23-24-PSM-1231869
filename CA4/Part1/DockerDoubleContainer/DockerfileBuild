@@ -1,0 +1,23 @@
+#Create a basic container with java 17
+FROM openjdk:17-jdk-slim as dockerdoublecontainer-builder
+
+LABEL authors="Luis"
+
+# Update package list and install Git
+RUN apt-get update && apt-get install -y git
+
+# Create a directory for the project and clone the repository there
+RUN mkdir -p /cloneHome
+WORKDIR /cloneHome
+
+#Clone given repository
+RUN git clone https://bitbucket.org/pssmatos/gradle_basic_demo/src/master .
+
+#Run the gradle build command
+RUN ./gradlew build
+
+# Create location for binary and copy the built binary there
+RUN mkdir /outputBinary && cp build/libs/basic_demo-0.1.0.jar /outputBinary/
+
+#Go to the outputBinary directory
+WORKDIR /outputBinary

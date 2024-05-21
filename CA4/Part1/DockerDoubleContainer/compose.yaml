@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  builder:
+    #Build image based on DockerfileBuild file
+    build:
+      #Build context is the current directory (use only files relative to the current directory)
+      context: .
+      dockerfile: DockerfileBuild
+
+  runner:
+    build:
+      context: .
+      dockerfile: DockerfileRun
+      #This image depends on the previous
+    depends_on:
+      - "builder"
