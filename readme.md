@@ -4,3 +4,5 @@
 - [Class assigment 2 - Part 2](CA2/Part2/readme.md)
 - [Class assigment 3 - Part 1](CA3/Part1/readme.md)
 - [Class assigment 3 - Part 2](CA3/Part2/readme.md)
+- [Class assigment 4 - Part 1](CA4/Part1/readme.md)
+- [Class assigment 4 - Part 2](CA4/Part2/readme.md)
