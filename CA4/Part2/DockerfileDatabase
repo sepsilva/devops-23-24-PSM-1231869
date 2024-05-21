@@ -1,0 +1,15 @@
+FROM openjdk:17-jdk-slim
+
+LABEL authors="Luis"
+
+# Install wget
+RUN apt-get update && apt-get install -y wget
+
+# Download H2 Database and run it
+RUN wget https://repo1.maven.org/maven2/com/h2database/h2/1.4.200/h2-1.4.200.jar
+
+#Expose console and data ports
+EXPOSE 8082 9092
+
+# Start H2 Server
+CMD ["java", "-cp", "h2-1.4.200.jar", "org.h2.tools.Server", "-web", "-webAllowOthers", "-tcp", "-tcpAllowOthers", "-ifNotExists"]
