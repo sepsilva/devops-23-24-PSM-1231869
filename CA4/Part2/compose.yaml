@@ -1,0 +1,47 @@
+services:
+  #Build image based on DockerfileDatabase file
+  db:
+    build:
+      context: .
+      dockerfile: DockerfileDatabase
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    networks:
+      app_network:
+        #Since we're running our CA2/Part2 Spring app and we have it defined to connect to the database at a speciffied IP address, we need to set the IP address of the database container
+        ipv4_address: 192.168.56.11
+    #Create a volume for the database data so we can access the data from the host machine or share it with other containers
+    volumes:
+      - type: volume
+        #Name of the volume
+        source: database_data
+        #The h2 data files are stored in /root inside the container
+        target: /root
+
+  #Build image based on DockerfileApp file
+  web:
+    build:
+      context: .
+      dockerfile: DockerfileApp
+    ports:
+      - "8080:8080"
+    networks:
+      app_network:
+        ipv4_address: 192.168.56.10
+    depends_on:
+      - "db"
+
+volumes:
+  database_data:
+    driver: local
+
+#Create a network for the app and database containers
+networks:
+  #Name of the network
+  app_network:
+    driver: bridge
+    ipam:
+      config:
+        #IP address range for the network
+        - subnet: 192.168.56.0/24
