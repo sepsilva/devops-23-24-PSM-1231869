@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out repo...'
+                git branch: 'main', url: 'https://github.com/sepsilva/devops-23-24-PSM-1231869.git'
+                dir('CA2/Part1/master') {
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building project...'
+                dir('CA2/Part1/master') {
+                    sh 'chmod +x gradlew'
+                    sh './gradlew clean build'
+                }
+            }
+        }
+        stage('Archive') {
+            steps {
+                dir('CA2/Part1/master') {
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+                }
+            }
+        }
+    }
+}
