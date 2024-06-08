@@ -37,5 +37,66 @@ archiveArtifacts 'build/distributions/*'
 ```
 - We save the job and select build now and then we the build is successful;
 
-Part 2 - Using our CAs to build a pipeline
-- We create a new pipeline job named pipeline_git;
+Part 2 - Using our CAs to build a pipeline - CA2/Part1
+- We create a new pipeline job named `pipeline_ca2_part1`;
+- In our CA5 folder we create a new [jenkins file named JenkinsfileCA2P1](JenkinsfileCA2P1);
+- In our pipeline job we specify our repository link, branch and the Jenkinsfile path that it should execute;
+- We do not need to add credentials as our repository is public;
+- In our [jenkinsfile](JenkinsfileCA2P1) we add:
+```groovy
+pipeline {
+    agent any
+
+    stages {
+    //What repository to checkout
+        stage('Checkout') {
+            steps {
+                echo 'Checking out repo...'
+                git branch: 'main', url: 'https://github.com/sepsilva/devops-23-24-PSM-1231869.git'
+                dir('CA2/Part1/master') {
+                }
+            }
+        }
+        //Redudant stage as tests are already run in the build stage
+        stage('Test') {
+            steps {
+                echo 'Testing project...'
+                dir('CA2/Part1/master') {
+                //Change gradlew permissions
+                    sh 'chmod +x gradlew'
+                    sh './gradlew test'
+                }
+            }
+        }
+        //Create a build stage to compile project
+        stage('Build') {
+            steps {
+            //Print to console for easier debug
+                echo 'Building project...'
+                dir('CA2/Part1/master') {
+                    //Run gradlew clean build task
+                    sh './gradlew clean build'
+                }
+            }
+        }
+        //Archive the generated binary file from the build stage
+        stage('Archive') {
+            steps {
+                dir('CA2/Part1/master') {
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+                }
+            }
+        }
+    }
+}
+```
+
+Part 3 - Using our CAs to build a pipeline - CA2/Part2
+- We create a new pipeline job named `pipeline_ca2_part2`;
+- In our CA5 folder we create a new [jenkins file named JenkinsfileCA2P2](JenkinsfileCA2P2);
+- In our pipeline job we specify our repository link, branch and the Jenkinsfile path that it should execute;
+- We do not need to add credentials as our repository is public;
+- In our [jenkinsfile](JenkinsfileCA2P2) we add:
+```groovy
+```
+- This pipeline should publish a new docker image with the built binary into a container running tomcat;
