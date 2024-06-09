@@ -48,7 +48,7 @@ pipeline {
     agent any
 
     stages {
-    //What repository to checkout
+        //What repository to checkout
         stage('Checkout') {
             steps {
                 echo 'Checking out repo...'
@@ -57,29 +57,30 @@ pipeline {
                 }
             }
         }
-        //Redudant stage as tests are already run in the build stage
+
+        //Assemble the project. Different from build, assemble is used to create the binary file
+        stage('Assemble') {
+            steps {
+                echo 'Assembling project...'
+                dir('CA2/Part1/master') {
+                    //Change gradlew permissions
+                    sh 'chmod +x gradlew'
+                    sh './gradlew assemble'
+                }
+            }
+        }
+
+        //Test stage to validate project
         stage('Test') {
             steps {
                 echo 'Testing project...'
                 dir('CA2/Part1/master') {
-                //Change gradlew permissions
-                    sh 'chmod +x gradlew'
                     sh './gradlew test'
                 }
             }
         }
-        //Create a build stage to compile project
-        stage('Build') {
-            steps {
-            //Print to console for easier debug
-                echo 'Building project...'
-                dir('CA2/Part1/master') {
-                    //Run gradlew clean build task
-                    sh './gradlew clean build'
-                }
-            }
-        }
-        //Archive the generated binary file from the build stage
+
+        //Archive the generated binary file from the assemble stage
         stage('Archive') {
             steps {
                 dir('CA2/Part1/master') {
@@ -89,6 +90,7 @@ pipeline {
         }
     }
 }
+
 ```
 
 Part 3 - Using our CAs to build a pipeline - CA2/Part2
