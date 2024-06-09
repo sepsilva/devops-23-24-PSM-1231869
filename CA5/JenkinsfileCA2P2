@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         CA_DIR = 'CA2/Part2/react-and-spring-data-rest-basic'
+        DOCKER_DIR = 'CA5'
     }
 
     //CHECKOUT STAGE
@@ -66,6 +67,24 @@ pipeline {
         }
 
         //CREATE DOCKERFILE
+        //Dockerfile gets place
+        stage('Create Dockerfile') {
+            steps {
+                echo 'Creating Dockerfile...'
+                dir(env.DOCKER_DIR) {
+                    script {
+                        def dockerfileContent = """
+                        FROM tomcat:10-jdk17-openjdk-slim
+                        COPY CA2/Part2/react-and-spring-data-rest-basic/build/libs/*.war /usr/local/tomcat/webapps/
+                        EXPOSE 8080
+                        CMD ["catalina.sh", "run"]
+                        """
+                        writeFile file: 'DockerfileCA2Part2', text: dockerfileContent
+                    }
+                }
+            }
+        }
+
 
     }
 }
