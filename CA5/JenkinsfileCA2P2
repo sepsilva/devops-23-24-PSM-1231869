@@ -1,119 +1,40 @@
 pipeline {
-    agent {
-        docker {
-            image 'docker:20.10.7'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
-        DOCKER_HUB_TOKEN = 'dckr_pat_vkeER_XEj52OkclMEysnKrSSFkY'
-        DOCKER_IMAGE_NAME = 'devops'
-        DOCKER_HUB_REPO = 'sepsilva'
+        CA_DIR = 'CA2/Part2/react-and-spring-data-rest-basic'
     }
 
+    //CHECKOUT STAGE
     stages {
-        stage('Verify Docker Credentials') {
-            steps {
-                script {
-                    sh '''
-                        echo $DOCKER_HUB_TOKEN | docker login -u sepsilva --password-stdin
-                        docker logout
-                    '''
-                }
-            }
-        }
-
+        //What repository to checkout
         stage('Checkout') {
             steps {
                 echo 'Checking out repo...'
                 git branch: 'main', url: 'https://github.com/sepsilva/devops-23-24-PSM-1231869.git'
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                    // Additional actions if necessary
-                }
             }
         }
 
+        //ASSEMBLE STAGE
         stage('Assemble') {
             steps {
                 echo 'Assembling project...'
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
+                dir(env.CA_DIR) {
+                    //Change gradlew permissions
+                    sh 'chmod +x gradlew'
                     sh './gradlew assemble'
                 }
             }
         }
 
+        //TEST STAGE
         stage('Test') {
             steps {
                 echo 'Testing project...'
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                    sh 'chmod +x gradlew'
+                dir(env.CA_DIR) {
                     sh './gradlew test'
                 }
-                junit '**/build/test-results/test/*.xml'
             }
-        }
-
-        stage('Javadoc') {
-            steps {
-                echo 'Generating Javadoc...'
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                    sh './gradlew javadoc'
-                }
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'CA2/Part2/react-and-spring-data-rest-basic/build/docs/javadoc',
-                    reportFiles: 'index.html',
-                    reportName: 'Javadoc'
-                ])
-            }
-        }
-
-        stage('Archive') {
-            steps {
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                    archiveArtifacts artifacts: 'build/libs/*.war', fingerprint: true
-                }
-            }
-        }
-
-        stage('Create Dockerfile') {
-            steps {
-                dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                    script {
-                        def dockerfileContent = """
-                        FROM tomcat:10-jdk17-openjdk-slim
-                        COPY build/libs/*.war /usr/local/tomcat/webapps/
-                        EXPOSE 8080
-                        CMD ["catalina.sh", "run"]
-                        """
-                        writeFile file: 'Dockerfile', text: dockerfileContent
-                    }
-                }
-            }
-        }
-
-        stage('Publish Image') {
-            steps {
-                script {
-                    echo 'Building and publishing Docker image...'
-                    dir('CA2/Part2/react-and-spring-data-rest-basic') {
-                        def tag = "${env.BUILD_NUMBER}"
-                        def dockerImage = docker.build("${env.DOCKER_HUB_REPO}/${env.DOCKER_IMAGE_NAME}:${tag}", '-f Dockerfile .')
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                            dockerImage.push()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
         }
     }
 }
