@@ -36,5 +36,36 @@ pipeline {
                 }
             }
         }
+
+        //GENERATE JAVADOCS AND PUBLISH IT
+        stage('Javadocs') {
+            steps {
+                echo 'Generating Javadocs...'
+                dir(env.CA_DIR) {
+                    sh './gradlew javadoc'
+                }
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'CA2/Part2/react-and-spring-data-rest-basic/build/docs/javadoc',
+                    reportFiles: 'index.html',
+                    reportName: 'Javadoc'
+                ])
+            }
+        }
+
+        //ARCHIVE PROJECT
+        stage('Archive') {
+            steps {
+                echo 'Archiving project...'
+                dir(env.CA_DIR) {
+                    archiveArtifacts artifacts: 'build/libs/*.war', fingerprint: true
+                }
+            }
+        }
+
+        //CREATE DOCKERFILE
+
     }
 }
