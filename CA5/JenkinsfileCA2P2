@@ -3,9 +3,6 @@ pipeline {
 
     environment {
         CA_DIR = 'CA2/Part2/react-and-spring-data-rest-basic'
-        DOCKER_DIR = 'CA5'
-        DOCKER_IMAGE_NAME = 'devops'
-        DOCKER_HUB_REPO = 'sepsilva'
     }
 
     //CHECKOUT STAGE
